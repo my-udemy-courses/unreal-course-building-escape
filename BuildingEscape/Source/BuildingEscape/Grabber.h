@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "PhysicsEngine/PhysicsHandleComponent.h"
 #include "Grabber.generated.h"
 
 
@@ -28,4 +29,5 @@ private:
 	// How far from player can the grabber grab things. (in cm)
 	float Reach;
 	
+	UPhysicsHandleComponent* PhysicsHandle = nullptr;
 };
