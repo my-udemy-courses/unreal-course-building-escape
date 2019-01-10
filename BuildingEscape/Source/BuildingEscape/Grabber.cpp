@@ -34,7 +34,7 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// Get player view point of current tick
+	/// Get player view point of current tick
 	FVector ViewPointLocation;
 	FRotator ViewPointRotation;
 	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
@@ -42,11 +42,7 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		OUT ViewPointRotation
 	);
 
-	//FString loc_Str = ViewPointLocation.ToString();
-	//FString rot_Str = ViewPointRotation.ToString();
-	//UE_LOG(LogTemp, Warning, TEXT("viewpoint is at %s and looks at %s"), *loc_Str, *rot_Str);
-
-	// draw a trace
+	/// draw a trace
 	FVector DebugTraceEnd = ViewPointLocation + ViewPointRotation.Vector() * Reach;
 	DrawDebugLine(
 		GetWorld(),
@@ -63,7 +59,7 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	FCollisionQueryParams TraceParams(FName(TEXT("")), false, GetOwner());
 
 	FHitResult Hit;
-	// do a ray-cast 
+	/// Do a ray-cast 
 	GetWorld()->LineTraceSingleByObjectType(
 		OUT Hit,
 		ViewPointLocation,
@@ -74,7 +70,7 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 
 	AActor *Actor = Hit.GetActor();
 	if (Actor) {
-		// see what we hit
+		// See what we hit
 		UE_LOG(LogTemp, Warning, TEXT("Hitresult: %s"), *(Actor->GetName()) );
 	}
 }
