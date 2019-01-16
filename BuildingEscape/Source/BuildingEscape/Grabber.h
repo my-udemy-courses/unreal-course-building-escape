@@ -26,6 +26,12 @@ protected:
 
 	void FindPhysicsHandle();
 
+	// Start of reach line for grabbing
+	FVector GetReachStart() const;
+
+	// End of reach line for grabbing
+	FVector GetReachEnd() const;
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

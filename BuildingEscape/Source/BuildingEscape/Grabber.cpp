@@ -14,7 +14,6 @@ UGrabber::UGrabber()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
 	Reach = 100.f;
 }
 
@@ -31,9 +30,7 @@ void UGrabber::SetupInputComponent()
 {
 	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
 	if (InputComponent) {
-		UE_LOG(LogTemp, Warning, TEXT("Found InputComponent!"))
-			/// Bind Action 
-			InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
+		InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
 		InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::Release);
 	}
 }
@@ -41,24 +38,45 @@ void UGrabber::SetupInputComponent()
 void UGrabber::FindPhysicsHandle()
 {
 	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
-	if (PhysicsHandle) {
-		/// Found component 
-	}
-	else {
+	if (PhysicsHandle == nullptr) {
 		UE_LOG(LogTemp, Error, TEXT("Unable to find PhysicsHandle component in %s"), *GetOwner()->GetName())
 	}
 }
 
+FVector UGrabber::GetReachStart() const
+{
+	/// Get player view point of current tick
+	FVector ViewPointLocation;
+	FRotator ViewPointRotation;
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
+		OUT ViewPointLocation,
+		OUT ViewPointRotation
+	);
+
+	return ViewPointLocation;
+}
+
+FVector UGrabber::GetReachEnd() const
+{
+	/// Get player view point of current tick
+	FVector ViewPointLocation;
+	FRotator ViewPointRotation;
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
+		OUT ViewPointLocation,
+		OUT ViewPointRotation
+	);
+
+	return ViewPointLocation + ViewPointRotation.Vector() * Reach;
+}
+
 void UGrabber::Grab()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Grab pressed!"));
-	
 	auto HitResult = GetFirstPhysicsBodyInReach();
 	auto ComponentToGrab = HitResult.GetComponent();
 	auto ActorHit = HitResult.GetActor();
 
+	// Grab the component hold in PhysicsHandle if we hit something in reach
 	if (ActorHit) {
-		// Attach the physics handle
 		PhysicsHandle->GrabComponent(
 			ComponentToGrab,
 			NAME_None,
@@ -66,17 +84,14 @@ void UGrabber::Grab()
 			true // allow rotation
 		);
 	}
-
 }
 
 void UGrabber::Release()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Grab released!"));
-	// release grabbed body if any
+	// Release grabbed body if any
 	if (PhysicsHandle->GrabbedComponent) {
 		PhysicsHandle->ReleaseComponent();
 	}
-
 }
 
 // Called every frame
@@ -84,35 +99,14 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	/// Get player view point of current tick
-	FVector ViewPointLocation;
-	FRotator ViewPointRotation;
-	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
-		OUT ViewPointLocation,
-		OUT ViewPointRotation
-	);
-
-	FVector TraceEnd = ViewPointLocation + ViewPointRotation.Vector() * Reach;
-
 	/// Move body if grabbing and body is found
 	if (PhysicsHandle->GrabbedComponent) {
-		// move object
-		PhysicsHandle->SetTargetLocation(TraceEnd);
+		PhysicsHandle->SetTargetLocation(GetReachEnd());
 	}
 }
 
 FHitResult UGrabber::GetFirstPhysicsBodyInReach() const
 {
-	/// Get player view point of current tick
-	FVector ViewPointLocation;
-	FRotator ViewPointRotation;
-	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
-		OUT ViewPointLocation,
-		OUT ViewPointRotation
-	);
-
-	FVector TraceEnd = ViewPointLocation + ViewPointRotation.Vector() * Reach;
-
 	/// Setup query parameters
 	FCollisionQueryParams TraceParams(FName(TEXT("")), false, GetOwner());
 
@@ -120,8 +114,8 @@ FHitResult UGrabber::GetFirstPhysicsBodyInReach() const
 	/// Do a ray-cast 
 	GetWorld()->LineTraceSingleByObjectType(
 		OUT Hit,
-		ViewPointLocation,
-		TraceEnd,
+		GetReachStart(),
+		GetReachEnd(),
 		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
 		TraceParams
 	);
@@ -134,4 +128,3 @@ FHitResult UGrabber::GetFirstPhysicsBodyInReach() const
 
 	return Hit;
 }
-
