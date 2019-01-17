@@ -25,6 +25,9 @@ protected:
 
 	void OpenDoor();
 	void CloseDoor();
+	
+	// Returns total mass in kg.
+	float GetTotalMassOfActorsOnPlate();
 
 public:	
 	// Called every frame
@@ -42,6 +45,5 @@ private:
 
 	float LastTimeDoorOpened;
 		
-	AActor* ActorThatOpens; // the actor that triggers the door to open
 	AActor* Owner; // the door itself
 };
