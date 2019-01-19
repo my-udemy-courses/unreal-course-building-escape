@@ -14,8 +14,6 @@ UOpenDoor::UOpenDoor()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 
 
@@ -26,6 +24,9 @@ void UOpenDoor::BeginPlay()
 
 	// Find the owning Actor
 	Owner = this->GetOwner();
+	if (!PressurePlate) {
+		UE_LOG(LogTemp, Error, TEXT("Unable to find PressurePlate component in %s"), *GetOwner()->GetName())
+	}
 }
 
 void UOpenDoor::OpenDoor()
@@ -63,6 +64,7 @@ float UOpenDoor::GetTotalMassOfActorsOnPlate()
 
 	// Find all the overlapping actors
 	TArray<AActor *> OverlappingActors;
+	if (!PressurePlate) return -1.f;
 	PressurePlate->GetOverlappingActors(OUT OverlappingActors);
 
 	// Iterate through them adding their masses

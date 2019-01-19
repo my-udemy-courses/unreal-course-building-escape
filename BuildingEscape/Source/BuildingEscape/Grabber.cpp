@@ -33,6 +33,9 @@ void UGrabber::SetupInputComponent()
 		InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
 		InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::Release);
 	}
+	else {
+		UE_LOG(LogTemp, Error, TEXT("Unable to find InputComponent component in %s"), *GetOwner()->GetName())
+	}
 }
 
 void UGrabber::FindPhysicsHandle()
@@ -76,6 +79,7 @@ void UGrabber::Grab()
 	auto ActorHit = HitResult.GetActor();
 
 	// Grab the component hold in PhysicsHandle if we hit something in reach
+	if (!PhysicsHandle) return;
 	if (ActorHit) {
 		PhysicsHandle->GrabComponent(
 			ComponentToGrab,
@@ -89,6 +93,7 @@ void UGrabber::Grab()
 void UGrabber::Release()
 {
 	// Release grabbed body if any
+	if (!PhysicsHandle) return;
 	if (PhysicsHandle->GrabbedComponent) {
 		PhysicsHandle->ReleaseComponent();
 	}
@@ -100,6 +105,7 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	/// Move body if grabbing and body is found
+	if (!PhysicsHandle) return;
 	if (PhysicsHandle->GrabbedComponent) {
 		PhysicsHandle->SetTargetLocation(GetReachEnd());
 	}

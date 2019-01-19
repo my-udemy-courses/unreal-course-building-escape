@@ -19,6 +19,9 @@ public:
 	// Sets default values for this component's properties
 	UOpenDoor();
 
+	// Called every frame
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -29,21 +32,18 @@ protected:
 	// Returns total mass in kg.
 	float GetTotalMassOfActorsOnPlate();
 
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
 private:
 	UPROPERTY(EditAnywhere)
 	float OpenAngle = 90.0f;
 
 	UPROPERTY(EditAnywhere)
-	ATriggerVolume* PressurePlate;
+	ATriggerVolume* PressurePlate = nullptr;
 
 	UPROPERTY(EditAnywhere)
 	float CloseDoorDelay = 1.f;
 
 	float LastTimeDoorOpened;
-		
-	AActor* Owner; // the door itself
+	
+	// the door itself
+	AActor* Owner = nullptr; 
 };
