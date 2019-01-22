@@ -29,17 +29,6 @@ void UOpenDoor::BeginPlay()
 	}
 }
 
-void UOpenDoor::OpenDoor()
-{
-	// Owner->SetActorRotation(FRotator(0.f, OpenAngle, 0.f), ETeleportType::TeleportPhysics);
-	OnOpenRequest.Broadcast();
-}
-
-void UOpenDoor::CloseDoor()
-{
-	Owner->SetActorRotation(FRotator(0.f, 0.f, 0.f), ETeleportType::TeleportPhysics);
-}
-
 
 // Called every frame
 void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -47,16 +36,14 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	float CurrentTime = GetWorld()->GetTimeSeconds();
 
-	// Poll the trigger volume
-	if (GetTotalMassOfActorsOnPlate() > 50.0f) { // TODO: kill magic number
-		OpenDoor();
-		LastTimeDoorOpened = CurrentTime;
+	// Check if mass in trigger volume is big enough to open door
+	if (GetTotalMassOfActorsOnPlate() > TriggerMass) {
+		OnOpen.Broadcast();
+	}
+	else {
+		OnClose.Broadcast();
 	}
 
-	if (CurrentTime - LastTimeDoorOpened > CloseDoorDelay) {
-		CloseDoor();
-	}
-	
 }
 
 float UOpenDoor::GetTotalMassOfActorsOnPlate()
